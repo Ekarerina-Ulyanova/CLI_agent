@@ -132,9 +132,9 @@ def run_daemon(github_client: GitHubClient):
     """Run agent in daemon mode, continuously monitoring for new issues."""
     console.print("[green]Starting agent in daemon mode[/green]")
     
-    from src.agents.issue_processor import IssueProcessor
+    from src.helpers.issue_processor import IssueProcessor
     processor = IssueProcessor(github_client)
-    check_interval = 60  # seconds
+    check_interval = 60
     
     try:
         while True:

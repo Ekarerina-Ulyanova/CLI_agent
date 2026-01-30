@@ -19,4 +19,4 @@ RUN git config --global user.name "Coding Agent" && \
 RUN useradd -m -u 1000 agent && chown -R agent:agent /app
 USER agent
 
-CMD ["python", "main.py", "run", "--mode", "daemon"]
+CMD ["python", "main.py", "run"]

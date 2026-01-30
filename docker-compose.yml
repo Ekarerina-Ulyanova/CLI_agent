@@ -16,5 +16,5 @@ services:
       sh -c "
       git config --global user.name 'Coding Agent' &&
       git config --global user.email 'agent@example.com' &&
-      python main.py run --mode daemon
+      python main.py run
       "
