@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  coding-agent:
+    build: .
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - GITHUB_REPOSITORY=${GITHUB_REPOSITORY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+    volumes:
+      - ./data:/app/data
+      - ~/.ssh:/root/.ssh:ro
+      - ./config:/app/config
+    restart: unless-stopped
+    command: >
+      sh -c "
+      git config --global user.name 'Coding Agent' &&
+      git config --global user.email 'agent@example.com' &&
+      python main.py run --mode daemon
+      "
