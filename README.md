@@ -18,3 +18,5 @@
 <img width="1341" height="1020" alt="image" src="https://github.com/user-attachments/assets/97e694ad-6725-4c5f-91ce-c8539733a5fc" />
 
 
+
+Ссылка на виде: https://drive.google.com/file/d/1dWcgbL7uYWzYBBN-vjc1IjEIS4xWmmDC/view?usp=sharing
