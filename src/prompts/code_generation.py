@@ -2,21 +2,23 @@
 Prompt templates for code generation tasks.
 """
 
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 
 
 class CodeGenerationPrompts:
     """Prompt templates for code generation and modification."""
-    
+
     @staticmethod
-    def get_issue_analysis_prompt(issue_data: Dict[str, Any], repo_context: Dict[str, Any] = None) -> str:
+    def get_issue_analysis_prompt(
+        issue_data: Dict[str, Any], repo_context: Dict[str, Any] = None
+    ) -> str:
         """
         Create prompt for issue analysis.
-        
+
         Args:
             issue_data (Dict[str, Any]): Issue data including title and body
             repo_context (Dict[str, Any]): Repository context information
-            
+
         Returns:
             str: Formatted prompt
         """
@@ -30,7 +32,7 @@ Repository Context:
 - Top Files: {', '.join(repo_context.get('structure', {}).get('files', []))}
 - File Types: {', '.join([f'{k}:{v}' for k, v in repo_context.get('file_types', {}).items()])}
 """
-        
+
         return f"""Analyze the following GitHub issue and determine what code changes are needed:
 
 Repository Information:
@@ -76,32 +78,33 @@ Provide your analysis in JSON format with the following structure:
 }}
 
 IMPORTANT: Be specific about file paths. Consider the repository structure shown above."""
-    
+
     @staticmethod
     def get_code_modification_prompt(
-        file_content: str,
-        issue_analysis: Dict[str, Any],
-        file_path: str,
-        context: str = ""
+        file_content: str, issue_analysis: Dict[str, Any], file_path: str, context: str = ""
     ) -> str:
         """
         Create prompt for modifying existing code.
-        
+
         Args:
             file_content (str): Current file content
             issue_analysis (Dict[str, Any]): Analysis of the issue
             file_path (str): Path to the file being modified
             context (str): Additional context about the file
-            
+
         Returns:
             str: Formatted prompt
         """
-        requirement = issue_analysis.get('requirement_summary', 'No requirements')
-        expected_behavior = issue_analysis.get('expected_behavior', 'No expected behavior specified')
-        edge_cases = issue_analysis.get('edge_cases', [])
-        
-        edge_cases_text = "\n".join([f"- {case}" for case in edge_cases]) if edge_cases else "None specified"
-        
+        requirement = issue_analysis.get("requirement_summary", "No requirements")
+        expected_behavior = issue_analysis.get(
+            "expected_behavior", "No expected behavior specified"
+        )
+        edge_cases = issue_analysis.get("edge_cases", [])
+
+        edge_cases_text = (
+            "\n".join([f"- {case}" for case in edge_cases]) if edge_cases else "None specified"
+        )
+
         return f"""Modify the following code file to implement the requested feature:
 
 File: {file_path}
@@ -134,27 +137,31 @@ Return ONLY the complete modified file content. Do not include explanations, mar
         file_path: str,
         issue_analysis: Dict[str, Any],
         project_context: str = "",
-        similar_files: List[str] = None
+        similar_files: List[str] = None,
     ) -> str:
         """
         Create prompt for creating new files.
-        
+
         Args:
             file_path (str): Path for the new file
             issue_analysis (Dict[str, Any]): Analysis of the issue
             project_context (str): Context about the project
             similar_files (List[str]): List of similar file paths for reference
-            
+
         Returns:
             str: Formatted prompt
         """
-        requirement = issue_analysis.get('requirement_summary', 'No requirements')
-        expected_behavior = issue_analysis.get('expected_behavior', 'No expected behavior specified')
-        
+        requirement = issue_analysis.get("requirement_summary", "No requirements")
+        expected_behavior = issue_analysis.get(
+            "expected_behavior", "No expected behavior specified"
+        )
+
         similar_files_text = ""
         if similar_files:
-            similar_files_text = f"\nSimilar files in project for reference: {', '.join(similar_files)}"
-        
+            similar_files_text = (
+                f"\nSimilar files in project for reference: {', '.join(similar_files)}"
+            )
+
         return f"""Create a new code file with the following specifications:
         File Path: {file_path}
 Issue Requirements: {requirement}
@@ -176,23 +183,21 @@ Return ONLY the complete file content. Do not include explanations, markdown for
 
     @staticmethod
     def get_test_generation_prompt(
-        code_content: str,
-        file_path: str,
-        issue_analysis: Dict[str, Any]
+        code_content: str, file_path: str, issue_analysis: Dict[str, Any]
     ) -> str:
         """
         Create prompt for generating tests.
-        
+
         Args:
             code_content (str): Code to test
             file_path (str): Path to the file
             issue_analysis (Dict[str, Any]): Issue analysis
-            
+
         Returns:
             str: Formatted prompt
         """
-        requirement = issue_analysis.get('requirement_summary', 'No requirements')
-        
+        requirement = issue_analysis.get("requirement_summary", "No requirements")
+
         return f"""Generate comprehensive unit tests for the following code:
 File: {file_path}
 Code to test:

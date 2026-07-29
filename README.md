@@ -1,22 +1,41 @@
-# CLI Agent
+# Coding Agents CLI
 
-Задать репозиторий, чьи issues будут прасматриваться и разбираться, необходимо в файле .env. Там же указывается GIT_TOKEN и API_KEY (на данный момент из провайдеров реализовано взаимодействие только с Openrouter). Пример файла в репозитории представлен.
+Агент создаёт изменения по GitHub issues и выполняет обзор созданных им pull request'ов через OpenRouter.
 
-Чтобы запустить процесс через консоль необходимо произвести следующие действия: склонировать репозиторий, выполнить python main.py run. В данном случае агент будет работать с уже имеющимися и вновь создаваемыми issues ровно до этапа его остановки.
+## Безопасная модель работы
 
-<img width="887" height="318" alt="image" src="https://github.com/user-attachments/assets/8e094284-a574-4796-81e2-5e24528206c9" />
+- Issue обрабатывается только с меткой `agent:implement`.
+- Агент не рассматривает pull request как issue.
+- Для review подходят только PR с метками `agent-generated` и `agent:review-pending`.
+- Автоматическое слияние выключено по умолчанию (`AUTO_MERGE=false`). Даже при его включении нужны успешные checks, не-draft PR и GitHub-разрешение на merge.
+- Агент не изменяет `.github`, `.git`, `.env`, пути с traversal или шаблоны файлов.
 
-Также придусмотрены опции для обработки конкретного issue или pr.
+Передайте GitHub token с минимальными правами для целевого репозитория. Не используйте токен администратора организации. Токен не добавляется в URL и не логируется.
 
-Созданный для собственного тестового репозитория при ограничении в 1 итерацию (количество также задаётся в .env файле) PR:
-<img width="1295" height="994" alt="image" src="https://github.com/user-attachments/assets/dedfa4b5-e380-442c-924a-2b2471c5d8fc" />
+## Быстрый запуск
 
-Пример исправленного файла:
-<img width="1326" height="910" alt="image" src="https://github.com/user-attachments/assets/ea08f63b-63f8-49fc-bedc-f8c86add2099" />
+```bash
+cp .env.example .env
+# Заполните GITHUB_TOKEN, GITHUB_REPOSITORY и OPENROUTER_API_KEY
+python -m venv .venv
+.venv/bin/pip install -r requirements.txt
+python main.py run --mode single --issue-number 123
+```
 
-Сам issue после обработки:
-<img width="1341" height="1020" alt="image" src="https://github.com/user-attachments/assets/97e694ad-6725-4c5f-91ce-c8539733a5fc" />
+Для daemon-режима добавьте к нужной задаче метку `agent:implement`, затем запустите `python main.py run`. Интервал задаётся `DAEMON_INTERVAL_SECONDS`.
 
+## Проверки
 
+Перед созданием PR агент клонирует только свою ветку и запускает Ruff, Black, MyPy и pytest. Если хотя бы одна включённая проверка не проходит, PR не создаётся. Все инструменты и их конфигурация находятся в `requirements.txt` и `pyproject.toml`.
 
-Ссылка на виде: https://drive.google.com/file/d/1dWcgbL7uYWzYBBN-vjc1IjEIS4xWmmDC/view?usp=sharing
+Локальная проверка проекта:
+
+```bash
+ruff check main.py src tests
+black --check main.py src tests
+pytest tests -q
+```
+
+## Восстановление
+
+При ошибке issue получает метку `blocked` и комментарий с причиной. После исправления причины снимите `blocked`, оставьте `agent:implement` и повторите запуск. PR, уже получивший review, отмечается `agent:reviewed`; для повторного review после новой ревизии вручную добавьте `agent:review-pending` и снимите `agent:reviewed`.

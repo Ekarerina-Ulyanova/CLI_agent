@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   coding-agent:
     build: .
@@ -9,12 +7,5 @@ services:
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
     volumes:
       - ./data:/app/data
-      - ~/.ssh:/root/.ssh:ro
-      - ./config:/app/config
     restart: unless-stopped
-    command: >
-      sh -c "
-      git config --global user.name 'Coding Agent' &&
-      git config --global user.email 'agent@example.com' &&
-      python main.py run
-      "
+    command: ["python", "main.py", "run"]

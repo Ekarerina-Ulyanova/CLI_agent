@@ -2,42 +2,44 @@
 Prompt templates for code review tasks.
 """
 
-from typing import Dict, Any, List
+from typing import Any, Dict, List
+
 
 class CodeReviewPrompts:
     """Prompt templates for code review and analysis."""
+
     @staticmethod
     def get_code_review_prompt(
         diff_content: str,
         issue_description: str,
         ci_results: Dict[str, Any],
         files_changed: List[str],
-        pr_title: str = ""
+        pr_title: str = "",
     ) -> str:
         """
         Create prompt for comprehensive code review.
-        
+
         Args:
             diff_content (str): Git diff of changes
             issue_description (str): Original issue description
             ci_results (Dict[str, Any]): Results from CI jobs
             files_changed (List[str]): List of changed files
             pr_title (str): PR title
-            
+
         Returns:
             str: Formatted prompt
         """
-        ci_status = "Pass" if ci_results.get('success', False) else "Fail"
-        ci_details = ci_results.get('details', 'No CI details')
-        total_jobs = ci_results.get('total_jobs', len(ci_results.get('jobs', [])))
+        ci_status = "Pass" if ci_results.get("success", False) else "Fail"
+        ci_details = ci_results.get("details", "No CI details")
+        total_jobs = ci_results.get("total_jobs", len(ci_results.get("jobs", [])))
 
         ci_jobs_text = ""
-        if ci_results.get('jobs'):
+        if ci_results.get("jobs"):
             ci_jobs_text = "CI/CD Jobs:\n"
-            for job in ci_results['jobs']:
-                status_icon = "✅" if job.get('state') == 'success' else "❌"
+            for job in ci_results["jobs"]:
+                status_icon = "✅" if job.get("state") == "success" else "❌"
                 ci_jobs_text += f"- {status_icon} {job.get('context', 'Unknown')}: {job.get('state', 'unknown')}\n"
-        
+
         return f"""Perform a comprehensive code review for the following Pull Request:
 PR Title: {pr_title}
 Original Issue: {issue_description}
@@ -100,19 +102,21 @@ Important:
         Create prompt for analyzing CI/CD results.
             Args:
             ci_results (Dict[str, Any]): CI/CD job results
-            
+
         Returns:
             str: Formatted prompt
         """
-        ci_jobs = ci_results.get('jobs', [])
-        success_count = sum(1 for job in ci_jobs if job.get('state') == 'success')
+        ci_jobs = ci_results.get("jobs", [])
+        success_count = sum(1 for job in ci_jobs if job.get("state") == "success")
         total_jobs = len(ci_jobs)
-        
-        jobs_text = "\n".join([
-            f"- {job.get('context', 'Unknown')}: {job.get('state', 'unknown')} - {job.get('description', 'No description')}"
-            for job in ci_jobs
-        ])
-        
+
+        jobs_text = "\n".join(
+            [
+                f"- {job.get('context', 'Unknown')}: {job.get('state', 'unknown')} - {job.get('description', 'No description')}"
+                for job in ci_jobs
+            ]
+        )
+
         return f"""Analyze the following CI/CD pipeline results:
 CI/CD Jobs ({success_count}/{total_jobs} passed):
 {jobs_text}
@@ -142,20 +146,19 @@ Provide analysis in JSON format:
 ],
 "recommendations": ["Specific recommendation 1", "Specific recommendation 2"]
 }}"""
+
     @staticmethod
     def get_pr_summary_prompt(
-        issue_description: str,
-        changes_made: str,
-        review_results: Dict[str, Any]
+        issue_description: str, changes_made: str, review_results: Dict[str, Any]
     ) -> str:
         """
         Create prompt for generating PR summary.
-        
+
         Args:
             issue_description (str): Original issue
             changes_made (str): Description of changes
             review_results (Dict[str, Any]): Review results
-            
+
         Returns:
             str: Formatted prompt
         """
